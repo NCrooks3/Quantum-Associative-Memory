@@ -12,46 +12,69 @@ sweep = 10000  # num of sweeps
 trans = 1000   # Initial values are cut - let results stabelise
 
 
-def calc_energy(s, N, h):
-    m = np.sum(s)   #Sum Spins for magnetisation
-    return -J * m**2 / (2 * N) - h * m  #See notes
+def calcEnergy(s, N, h):
+    m = np.sum(s)   #sum spins for net magnetisation
+    return -J * m**2 / (2 * N) - h * m  #See Ising model notes
 
-def monte_carlo_step_optimized(s, J, b, h, N, m):
-    flip_indices = np.random.randint(0, N, N)  # Random indices to flip
-    for k in flip_indices:
-        dE = 2 * s[k] * (J * m / N + h)  # Energy difference
-        if dE < 0 or random.random() < np.exp(-b * dE):
-            s[k] = -s[k]  # Accept flip
-            m += 2 * s[k]  # Update magnetization
+
+#Run a Monte-Carlo step
+def MCstep(s, J, b, h, N, m):
+    for k in range(N):  #Loop over sites
+        # Choose a random spin index
+        i = np.random.randint(0, N)
+
+        # Calculate energy change if flip spin at site i
+        dE = 2 * s[i] * (J * m / N + h)  
+
+        # Metropolis: accept flip if energy decreases or with probability exp(-beta * dE)
+        if dE < 0 or np.random.random() < np.exp(-b * dE):
+            s[i] = -s[i]  # Flip the spin
+            m += 2 * s[i]  # Update the magnetization incrementally
     return s, m
 
-def simulate_system(args):
+def simulateSystem(args):
+
     # Unpack variables
     N, sweep, trans, J, b, h = args
 
-    # Random initial spins
+    # Define filenames for the data
+    base = f"N_{N}_h_{h:.2f}_data"
+    magnetizationFile = f"{base}_magnetizations.txt"
+    energyFile = f"{base}_energies.txt"
+
+    # Check if data files already exist - Don't need to run again if already done
+    if os.path.exists(magnetizationFile) and os.path.exists(energyFile):
+        print(f"Data for N={N}, h={h} already exists. Skipping simulation.")
+        # If data exists, read from the files
+        magnetizations = np.loadtxt(magnetizationFile)
+        energies = np.loadtxt(energyFile)
+        avgMagnetization = np.mean(magnetizations)
+        return N, h, avgMagnetization
+
+    # Initialize spins randomly (±1 with equal probability)
     s = np.random.choice([-1, 1], size=N)
     m = np.sum(s)  # Initial magnetization
 
+    # Data storage
     magnetizations = []
     energies = []
 
     # Main loop
     for mcs in range(sweep):
-        s, m = monte_carlo_step_optimized(s, J, b, h, N, m)
-        if mcs >= trans:  # Cut out early values - before stabelised
-            magnetizations.append(m / N)  # Normalize 
-            energies.append(calc_energy(s, N, h)) 
+        s, m = MCstep(s, J, b, h, N, m)
+        if mcs >= trans:  # Skip transient period
+            magnetizations.append(m / N)  # Normalize magnetization from sum
+            energies.append(calcEnergy(s, N, h))  # Calculate and store energy
 
-    # Save results
-    base_name = f"N_{N}_h_{h:.2f}_data"
-    np.savetxt(f"{base_name}_magnetizations.txt", magnetizations)
-    np.savetxt(f"{base_name}_energies.txt", energies)
+    # Save results to text files
+    np.savetxt(magnetizationFile, magnetizations)
+    np.savetxt(energyFile, energies)
 
-    return N, h, np.mean(magnetizations), np.mean(energies)
+    # Return average magnetization for this system
+    return N, h, np.mean(magnetizations)
 
 # Run for different N and h in paralell
-def main_parallel():
+def mainParallel():
     # lattice sizes used
     system_sizes = [2**2, 20**2, 50**2, 100**2]  # N = 4, 400, 2500, 10000
     args_list = [(N, sweep, trans, J, b, h) for N in system_sizes for h in h_values]
@@ -60,18 +83,18 @@ def main_parallel():
     num_cores = cpu_count()
 
     with Pool(num_cores) as pool:
-        results = pool.map(simulate_system, args_list)
+        results = pool.map(simulateSystem, args_list)
 
     # Save summarised results
-    summary_file = "summary_results.txt"
-    with open(summary_file, "w") as f:
+    summaryFile = "summary_results.txt"
+    with open(summaryFile, "w") as f:
         f.write("N\th\tAvg_Magnetization\tAvg_Energy\n")
         for res in results:
             f.write(f"{res[0]}\t{res[1]:.2f}\t{res[2]:.4f}\t{res[3]:.4f}\n")
 
-    print(f"Monte-Carlo complete. Results saved to {summary_file}.")
+    print(f"Monte-Carlo complete. Results saved to {summaryFile}.")
 
-def plot_results():
+def plotResults():
     # Gather all files with data
     files = [f for f in os.listdir() if f.endswith("_magnetizations.txt")]
 
@@ -115,7 +138,7 @@ def plot_results():
 
 if __name__ == "__main__":
     # Run parallel simulations
-    main_parallel()
+    mainParallel()
 
     # Plot results
-    plot_results()
+    plotResults()
