@@ -65,7 +65,7 @@ def temperatureSweepMagnetisations(h=0.1):
     #h = 0.1  # Example: Fix external field for this sweep
 
     # Define output file for temperature sweep data
-    output_file = f"temperature_sweep_h_{h:.2f}_N_{N}_h_{h}.txt"
+    output_file = f"temperature_sweep_N_{N}_h_{h:.2f}_J_{J:.2f}.txt"
 
     # Check if the data file already exists
     if os.path.exists(output_file):
@@ -101,9 +101,7 @@ def temperatureSweepMagnetisations(h=0.1):
 
     return temperatures, avgMagnetizations
 
-
-
-def plot_magnetization_vs_temperature(T_vals, avgMagnetizationsm, h):
+def plot_magnetization_vs_temperature(T_vals, avgMagnetizations, h):
     plt.figure(figsize=(8, 6))
     
     # Plot the Monte Carlo data
@@ -125,7 +123,7 @@ def simulateSystem(args):
     N, sweep, trans, J, b, h = args
 
     # Define filenames for the data
-    base = f"N_{N}_h_{h:.2f}_data"
+    base = f"N_{N}_h_{h:.2f}_b{b:.2f}_J_{J:.2f}_data"
     magnetizationFile = f"{base}_magnetizations.txt"
     energyFile = f"{base}_energies.txt"
 
@@ -182,7 +180,6 @@ def hSweepMagnetisations():
 
     return sortedFields, avgMagnetizations
 
-
 # Plot magnetization vs. applied field
 def plot_magnetization_vs_field(hVals, avgMagnetizations, b):
     plt.figure(figsize=(8, 6))
@@ -200,6 +197,7 @@ def plot_magnetization_vs_field(hVals, avgMagnetizations, b):
 
 # So multiprocessing doesn't break - can only run if definitely in main
 if __name__ == "__main__":
+    
     h = 0.1
     print("Starting Field Sweep")
     # Field sweep
