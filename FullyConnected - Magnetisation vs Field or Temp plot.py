@@ -8,9 +8,10 @@ np.random.seed(1234)
 
 # Parameters
 J = 1.0       # Coupling 
+#J = 0.25
 b = 1.5       # Inverse temperature 
-hVals = [-1.0, -0.9, -0.8, -0.7, -0.6, -0.5, -0.4, -0.3, -0.2, -0.1, -0.075, -0.05, -0.025, -0.01, 0.01, 0.025, 0.05, 0.075, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]  # Different external fields
-T_vals = np.linspace(0.5, 4.0, 20)
+hVals = [-1.0, -0.9, -0.8, -0.7, -0.6, -0.5, -0.4, -0.3, -0.2, -0.1, -0.075, -0.05, 0.05, 0.075, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]  # Different external fields
+T_vals = np.linspace(0.00000001, 4.0, 50)
 sweep = 10000  # Number of sweeps
 trans = 5000  # Will ignore values from sweep index below this
 
@@ -59,7 +60,7 @@ def simulateSystemTemperature(args):
     return T, np.mean(magnetizations)
 
 
-def temperatureSweepMagnetisations(h=0.1):
+def temperatureSweepMagnetisations(h):
     # Set system size and external field (choose h = 0 or another fixed value)
     N = 30**2
     #h = 0.1  # Example: Fix external field for this sweep
@@ -84,7 +85,7 @@ def temperatureSweepMagnetisations(h=0.1):
     num_cores = cpu_count()
 
     # Run simulations in parallel
-    with Pool(num_cores) as pool:
+    with Pool(num_cores-1) as pool:
         results = pool.map(simulateSystemTemperature, argsList)
 
     # Extract temperatures and average magnetizations
@@ -110,7 +111,7 @@ def plot_magnetization_vs_temperature(T_vals, avgMagnetizations, h):
     # Customize the plot
     plt.xlabel("Temperature (T)", fontsize=12)
     plt.ylabel("Average Magnetization", fontsize=12)
-    plt.title("Magnetization vs Temperature for h = %s" % str(h), fontsize=14)
+    plt.title("Magnetization vs Temperature for h = %s, J = %s" % (str(h), str(J)), fontsize=14)
     plt.grid(True)
     plt.legend()
     plt.show()
@@ -171,7 +172,7 @@ def hSweepMagnetisations():
     num_cores = cpu_count()
 
     #Run using all available cores :)
-    with Pool(num_cores) as pool:
+    with Pool(num_cores-1) as pool:
         results = pool.map(simulateSystem, argsList)
 
     # Extract average magnetizations and corresponding h values
@@ -190,7 +191,7 @@ def plot_magnetization_vs_field(hVals, avgMagnetizations, b):
     # Customize the plot
     plt.xlabel("External Field (h)", fontsize=12)
     plt.ylabel("Average Magnetization", fontsize=12)
-    plt.title("Magnetization vs Applied External Field", fontsize=14)
+    plt.title("Magnetization vs Applied External Field for b = %s, J = %s" % (str(b), str(J)), fontsize=14)
     plt.grid(True)
     plt.legend()
     plt.show()
@@ -198,15 +199,15 @@ def plot_magnetization_vs_field(hVals, avgMagnetizations, b):
 # So multiprocessing doesn't break - can only run if definitely in main
 if __name__ == "__main__":
     
-    h = 0.1
-    print("Starting Field Sweep")
+    h = 2.5
+    #print("Starting Field Sweep")
     # Field sweep
     # Average magnetization for different field strengths
-    sortedFields, magnetizations = hSweepMagnetisations()
+    #sortedFields, magnetizations = hSweepMagnetisations()
     # Plot results - field curve
-    plot_magnetization_vs_field(sortedFields, magnetizations, b)
+    #plot_magnetization_vs_field(sortedFields, magnetizations, b)
 
     print("Starting Temp Sweep")
     # Temperature sweep
-    temperatures, magnetizations_temp = temperatureSweepMagnetisations(0.1)
+    temperatures, magnetizations_temp = temperatureSweepMagnetisations(h)
     plot_magnetization_vs_temperature(temperatures, magnetizations_temp, h)
