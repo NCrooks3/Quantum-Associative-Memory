@@ -198,8 +198,13 @@ def plot_magnetization_vs_field(hVals, avgMagnetizations, b):
 # So multiprocessing doesn't break - can only run if definitely in main
 if __name__ == "__main__":
     
+<<<<<<< Updated upstream
     h = 0.1
     print("Starting Field Sweep")
+=======
+    h = 20.0
+    #print("Starting Field Sweep")
+>>>>>>> Stashed changes
     # Field sweep
     # Average magnetization for different field strengths
     sortedFields, magnetizations = hSweepMagnetisations()
