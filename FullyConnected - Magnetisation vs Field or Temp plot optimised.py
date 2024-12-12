@@ -9,7 +9,7 @@ np.random.seed(1234)
 # Parameters
 J = 1.0  # Coupling constant
 b = 1.0  # Inverse temperature
-hVals = [-1.0, -0.9, -0.8, -0.7, -0.6, -0.5, -0.4, -0.3, -0.2, -0.1, 0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+hVals = [-1.0, -0.9, -0.8, -0.7, -0.6, -0.5, -0.4, -0.3, -0.2, -0.1, -0.05, 0, 0.05,  0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
 #hVals = [-1.0, -0.5, 0, 0.5, 1.0]
 T_vals = np.linspace(0.00000001, 4.0, 50)
 sweep = 10000  # Number of sweeps
@@ -108,6 +108,7 @@ def simulateSystem(args):
     return N, h, np.mean(magnetizations), np.std(magnetizations)
 
 def plot_magnetization_vs_temperature(T_vals, avgMagnetizations, h, std):
+
     plt.figure(figsize=(8, 6))
     plt.plot(T_vals, avgMagnetizations, marker='o', color='r', label="Average Magnetization (MC)")
     plt.errorbar(T_vals, avgMagnetizations, marker="o", yerr = std)
@@ -119,6 +120,7 @@ def plot_magnetization_vs_temperature(T_vals, avgMagnetizations, h, std):
     plt.show()
 
 def plot_magnetization_vs_field(hVals, avgMagnetizations, b, std):
+
     plt.figure(figsize=(8, 6))
     #plt.plot(hVals, avgMagnetizations, marker='o', yerr = std, color='b', label="Average Magnetization (MC)")
 
@@ -130,7 +132,7 @@ def plot_magnetization_vs_field(hVals, avgMagnetizations, b, std):
     plt.errorbar(hVals, avgMagnetizations, fmt=".", yerr = std, color="royalblue")
     plt.xlabel("External Field (h)")
     plt.ylabel("Average Magnetization")
-    plt.title(f"Magnetization vs Field for $\\beta$={b}, J={J}")
+    plt.title(f"Magnetization vs Field for $\\beta J$={b * J}, N = $30^2$")
     plt.grid(True)
     plt.legend()
     plt.show()
