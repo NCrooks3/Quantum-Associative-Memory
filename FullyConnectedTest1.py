@@ -6,10 +6,11 @@ import os
 
 # Parameters
 J = 1.0      # Coupling 
-b = 1.5      # Inverse temperature
-h_values = [0.0, 0.1, 0.5, 1.0, -1.0]  # Applied magnetic fields
+#b = 1.5      # Inverse temperature
+b = 1.0
+h_values = [0.0, 0.1, 0.5, 1.0, -1.0, -0.1, -0.5]  # Applied magnetic fields
 sweep = 10000  # num of sweeps
-trans = 1000   # Initial values are cut - let results stabelise
+trans = 0   # Initial values are cut - let results stabelise
 
 
 def calcEnergy(s, N, h):
@@ -76,7 +77,8 @@ def simulateSystem(args):
 # Run for different N and h in paralell
 def mainParallel():
     # lattice sizes used
-    system_sizes = [2**2, 20**2, 50**2, 100**2]  # N = 4, 400, 2500, 10000
+    #system_sizes = [2**2, 20**2, 50**2, 100**2]  # N = 4, 400, 2500, 10000
+    system_sizes = [4**2, 50**2, 75**2]  # N = 4, 400, 2500, 10000
     args_list = [(N, sweep, trans, J, b, h) for N in system_sizes for h in h_values]
 
     # Check number of cores - for speed
@@ -90,7 +92,7 @@ def mainParallel():
     with open(summaryFile, "w") as f:
         f.write("N\th\tAvg_Magnetization\tAvg_Energy\n")
         for res in results:
-            f.write(f"{res[0]}\t{res[1]:.2f}\t{res[2]:.4f}\t{res[3]:.4f}\n")
+            f.write(f"{res[0]}\t{res[1]:.2f}\t{res[2]:.4f}\n")
 
     print(f"Monte-Carlo complete. Results saved to {summaryFile}.")
 
@@ -111,12 +113,13 @@ def plotResults():
 
     # Plot magnetization for different h values at fixed N
     for N, file_group in grouped_files.items():
+        print(N)
         plt.figure(figsize=(10, 6)) 
         for h, file in file_group:
             magnetizations = np.loadtxt(file)
-            plt.plot(magnetizations, label=f"h={h:.2f}")
+            plt.plot(np.linspace(0, len(magnetizations), len(magnetizations)) / N, magnetizations, label=f"h={h:.2f}")
 
-        plt.xlabel("Monte Carlo Steps", fontsize=12)
+        plt.xlabel("Monte Carlo Sweep", fontsize=12)
         plt.ylabel("Magnetization", fontsize=12)
         plt.title(f"Magnetization vs Monte Carlo Steps for N={N}", fontsize=14)
         plt.legend()
