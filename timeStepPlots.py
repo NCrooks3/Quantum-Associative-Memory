@@ -133,7 +133,7 @@ def plot_magnetization_comparison(hVals, avgMagnetizations_MC, b, std):
     plt.legend()
     plt.show()
 
-systemSizes = np.arange(100, 500, 50)
+systemSizes = np.arange(100, 500, 3)
 
 for N in systemSizes:
     print(N)
@@ -154,22 +154,33 @@ for N in systemSizes:
 
         print("timescale")
         if os.path.exists("Timescales for T = %s" % str(temps[i])):
-            f = open("Timescales for T = %s" % str(temps[i]), "a")
-            np.savetxt(f, [timescale])
+            # Open in append mode and write the timescale
+            with open("Timescales for T = %s" % str(temps[i]), "a") as f:
+                np.savetxt(f, [timescale])
         else:
-            np.savetxt("Timescales for T = %s" % str(temps[i]), [timescale])
+            # Create the file and write the initial value
+            with open("Timescales for T = %s" % str(temps[i]), "w") as f:
+                np.savetxt(f, [timescale])
 
         if os.path.exists("Sizes for T = %s" % str(temps[i])):
-            f = open("Sizes for T = %s" % str(temps[i]), "a")
-            np.savetxt(f, [N])
+            # Open in append mode and write the size
+            with open("Sizes for T = %s" % str(temps[i]), "a") as f:
+                np.savetxt(f, [N])
         else:
-            np.savetxt("Sizes for T = %s" % str(temps[i]), [N])
+            # Create the file and write the initial value
+            with open("Sizes for T = %s" % str(temps[i]), "w") as f:
+                np.savetxt(f, [N])
 
         if os.path.exists("sem for T = %s" % str(temps[i])):
-            f = open("sem for T = %s" % str(temps[i]), "a")
-            np.savetxt(f, [var/len(timescales)])
+            # Open in append mode and write the sem value
+            with open("sem for T = %s" % str(temps[i]), "a") as f:
+                np.savetxt(f, [var / len(timescales)])
         else:
-            np.savetxt("sem for T = %s" % str(temps[i]), [var/len(timescales)])
+            # Create the file and write the initial value
+            with open("sem for T = %s" % str(temps[i]), "w") as f:
+                np.savetxt(f, [var / len(timescales)])
+
+
 
         print(timescale)
    
