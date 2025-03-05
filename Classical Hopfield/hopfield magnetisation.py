@@ -4,9 +4,9 @@ import matplotlib.pyplot as plt
 # Parameters
 n = 41               # Grid size
 N = n**2             # Number of spins
-steps = 10000000       # Number of Monte Carlo steps (each step consists of N spin updates)
+steps = 1000       # Number of Monte Carlo steps (each step consists of N spin updates)
 J = 1.0              # Coupling constant
-beta = 0.4          # Inverse temperature  
+beta = 0.002          # Inverse temperature  
 
 # Create Hopfield patterns
 def create_swiss_flag(n):
@@ -46,16 +46,17 @@ np.fill_diagonal(W, 0)  # No self-connections
 
 # Initialize spins randomly
 s = np.random.choice([-1, 1], size=(n, n))
+
 # Calculate initial magnetisation (average spin)
 m = np.mean(s)
 
 def monte_carlo_step(s, beta):
-    """
-    Perform a single Monte Carlo step by flipping one spin using the Metropolis rule.
-    """
+
+    #Attempt to flip a spin, using metrapolis rule
+
     s_flat = s.flatten()
     idx = np.random.randint(N)
-    delta_E = 2 * s_flat[idx] * np.dot(W[idx], s_flat)
+    delta_E = s_flat[idx] * np.dot(W[idx], s_flat)
     flip_occurred = False
     delta_m = 0.0
     if delta_E < 0 or np.random.rand() < np.exp(-beta * delta_E):
@@ -78,6 +79,7 @@ for step in range(steps):
     
     if step % 500 == 0:  # Print progress every 500 steps
         print(f"Step {step} of {steps}")
+        print(f"Step {step}: Δm = {dm:.4f}, Magnetization = {m:.4f}")
 
     # Store magnetisation once per Monte Carlo step
     magnetisations.append(m)
@@ -88,9 +90,10 @@ magnetisations = np.array(magnetisations, dtype=np.float32)
 time_steps = np.array(time_steps, dtype=np.float32)
 
 # Downsample for plotting if too large
-downsample_factor = max(1, len(time_steps) // 1000)  # Keep max 1000 points
+#downsample_factor = max(1, len(time_steps) // 10000)  # Keep max 10000 points
 plt.figure(figsize=(10, 6))
-plt.plot(time_steps[::downsample_factor], magnetisations[::downsample_factor], marker='o', markersize=2)
+#plt.plot(time_steps[::downsample_factor], magnetisations[::downsample_factor], marker='o', markersize=2)
+plt.plot(time_steps, magnetisations)
 plt.title(f'$\\beta J = {beta * J}$')
 plt.xlabel('Time ($\\frac{\\#}{N}$)')
 plt.ylabel('Magnetisation (m)')
