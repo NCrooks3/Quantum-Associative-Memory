@@ -4,9 +4,9 @@ import matplotlib.pyplot as plt
 # Parameters
 n = 41               # Grid size
 N = n**2             # Number of spins
-steps = 1000       # Number of Monte Carlo steps (each step consists of N spin updates)
+steps = 100000       # Number of Monte Carlo steps (each step consists of N spin updates)
 J = 1.0              # Coupling constant
-beta = 0.002          # Inverse temperature  
+beta = 0.0029          # Inverse temperature  
 
 # Create Hopfield patterns
 def create_swiss_flag(n):
@@ -80,6 +80,16 @@ for step in range(steps):
     if step % 500 == 0:  # Print progress every 500 steps
         print(f"Step {step} of {steps}")
         print(f"Step {step}: Δm = {dm:.4f}, Magnetization = {m:.4f}")
+    
+    if step % 20000 == 0:
+
+        # Save frame immediately to disk
+        fig, ax = plt.subplots(figsize=(5, 5))  # Adjust the size if needed
+        ax.imshow(s, cmap='gray')
+        ax.axis('off')
+
+        plt.savefig(f'Classical Hopfield\\bj = %s, sweep = %s.png' % (str(beta * J), str(step)), bbox_inches='tight', pad_inches=0)
+        plt.close(fig)
 
     # Store magnetisation once per Monte Carlo step
     magnetisations.append(m)
