@@ -2,11 +2,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 # Parameters
-n = 41               # Grid size
+n = 101               # Grid size
 N = n**2             # Number of spins
-steps = 100000       # Number of Monte Carlo steps (each step consists of N spin updates)
+steps = 5000000       # Number of Monte Carlo steps (each step consists of N spin updates)
 J = 1.0              # Coupling constant
-beta = 0.0029          # Inverse temperature  
+beta = 0.0025          # Inverse temperature  
 
 # Create Hopfield patterns
 def create_swiss_flag(n):
